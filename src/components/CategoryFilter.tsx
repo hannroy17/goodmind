@@ -21,8 +21,8 @@ export default function CategoryFilter({ category, language, onCategoryChange }:
             onClick={() => onCategoryChange(cat.value)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
               category === cat.value
-                ? 'bg-teal-400 text-white shadow-md scale-105'
-                : 'bg-white text-gray-600 hover:bg-teal-50 hover:text-teal-500 border border-gray-200'
+                ? 'bg-[#6BADA8] text-white shadow-md scale-105'
+                : 'bg-white text-gray-600 hover:bg-teal-50 hover:text-[#6BADA8] border border-gray-200'
             }`}
           >
             <span>{cat.emoji}</span>
