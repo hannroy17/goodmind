@@ -86,7 +86,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
             target="_blank"
             rel="noopener noreferrer"
             onClick={e => e.stopPropagation()}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-full transition-colors"
+            className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-teal-400 hover:bg-teal-300 text-white text-xs font-semibold rounded-full transition-colors"
           >
             Ouvrir ↗
           </a>
@@ -157,7 +157,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-full transition-colors text-sm"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-400 hover:bg-teal-300 text-white font-semibold rounded-full transition-colors text-sm"
                   >
                     Lire l&apos;article complet ↗
                   </a>
@@ -187,7 +187,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                     href={article.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-full transition-colors text-sm"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-teal-400 hover:bg-teal-300 text-white font-semibold rounded-full transition-colors text-sm"
                   >
                     Lire l&apos;article ↗
                   </a>

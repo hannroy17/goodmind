@@ -228,7 +228,7 @@ export default function NewsCard({ article, onClick, uiLanguage, priority = fals
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full ${
                   i < Math.round(article.positivityScore / 20)
-                    ? 'bg-teal-600'
+                    ? 'bg-teal-400'
                     : 'bg-gray-200'
                 }`}
               />

@@ -33,8 +33,8 @@ export default function Header({ language, onLanguageChange }: HeaderProps) {
               onClick={() => onLanguageChange(lang.value)}
               className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
                 language === lang.value
-                  ? 'bg-teal-600 text-white shadow-sm'
-                  : 'text-gray-500 hover:text-teal-600 hover:bg-teal-50'
+                  ? 'bg-teal-400 text-white shadow-sm'
+                  : 'text-gray-500 hover:text-teal-500 hover:bg-teal-50'
               }`}
             >
               <span>{lang.flag}</span>
