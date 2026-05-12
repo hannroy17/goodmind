@@ -158,7 +158,7 @@ async function fetchSource(source: NewsSource): Promise<NewsArticle[]> {
         sourceUrl: feed.link || source.url,
         language: source.language === 'all' ? 'en' : source.language,
         category: source.category,
-        publishedAt: item.isoDate || item.pubDate || new Date().toISOString(),
+        publishedAt: item.isoDate || item.pubDate || '2000-01-01T00:00:00.000Z',
         positivityScore,
       })
     }
