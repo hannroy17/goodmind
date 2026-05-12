@@ -7,6 +7,32 @@ import Image from 'next/image'
 interface ArticleModalProps {
   article: NewsArticle | null
   onClose: () => void
+  onImageFetched?: (articleId: string, imageUrl: string) => void
+  language?: string
+}
+
+const T: Record<string, Record<string, string>> = {
+  en: {
+    open: 'Open ↗',
+    readFull: 'Read full article ↗',
+    noPreview: 'This site cannot be previewed directly.',
+    read: 'Read article ↗',
+    fullOnSite: 'Full content available on the publisher\'s site.',
+  },
+  fr: {
+    open: 'Ouvrir ↗',
+    readFull: 'Lire l\'article complet ↗',
+    noPreview: 'Ce site ne peut pas être prévisualisé directement.',
+    read: 'Lire l\'article ↗',
+    fullOnSite: 'Contenu complet disponible sur le site de l\'éditeur.',
+  },
+  de: {
+    open: 'Öffnen ↗',
+    readFull: 'Vollständigen Artikel lesen ↗',
+    noPreview: 'Diese Website kann nicht direkt angezeigt werden.',
+    read: 'Artikel lesen ↗',
+    fullOnSite: 'Vollständiger Inhalt auf der Website des Herausgebers verfügbar.',
+  },
 }
 
 interface FetchedContent {
@@ -19,7 +45,8 @@ interface FetchedContent {
 
 type Status = 'idle' | 'loading' | 'ready' | 'error'
 
-export default function ArticleModal({ article, onClose }: ArticleModalProps) {
+export default function ArticleModal({ article, onClose, onImageFetched, language = 'en' }: ArticleModalProps) {
+  const t = T[language] ?? T.en
   const [status, setStatus] = useState<Status>('idle')
   const [fetched, setFetched] = useState<FetchedContent | null>(null)
   const [imgSrc, setImgSrc] = useState<string>('')
@@ -36,6 +63,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
       setFetched(data)
       setImgSrc(data.image || '')
       setStatus('ready')
+      if (data.image && article) onImageFetched?.(article.id, data.image)
     } catch {
       setStatus('error')
     }
@@ -88,7 +116,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
             onClick={e => e.stopPropagation()}
             className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-[#6BADA8] hover:bg-[#6BADA8] text-white text-xs font-semibold rounded-full transition-colors"
           >
-            Ouvrir ↗
+            {t.open}
           </a>
         </div>
 
@@ -147,9 +175,14 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-gray-500 text-sm italic">
-                    Contenu non disponible. Ouvre l&apos;article dans ton navigateur.
-                  </p>
+                  <div className="space-y-3">
+                    {article.excerpt && (
+                      <p className="text-gray-700 leading-relaxed">{article.excerpt}</p>
+                    )}
+                    <p className="text-gray-400 text-xs italic">
+                      {t.fullOnSite}
+                    </p>
+                  </div>
                 )}
 
                 <div className="mt-6 pt-4 border-t border-gray-100">
@@ -159,7 +192,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6BADA8] hover:bg-[#6BADA8] text-white font-semibold rounded-full transition-colors text-sm"
                   >
-                    Lire l&apos;article complet ↗
+                    {t.readFull}
                   </a>
                 </div>
               </>
@@ -181,7 +214,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                 <div className="flex flex-col items-center gap-3 py-6 text-center">
                   <span className="text-3xl">🔗</span>
                   <p className="text-sm text-gray-400">
-                    Ce site ne peut pas être prévisualisé directement.
+                    {t.noPreview}
                   </p>
                   <a
                     href={article.url}
@@ -189,7 +222,7 @@ export default function ArticleModal({ article, onClose }: ArticleModalProps) {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#6BADA8] hover:bg-[#6BADA8] text-white font-semibold rounded-full transition-colors text-sm"
                   >
-                    Lire l&apos;article ↗
+                    {t.read}
                   </a>
                 </div>
               </>

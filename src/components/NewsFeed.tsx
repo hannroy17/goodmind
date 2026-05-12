@@ -18,6 +18,7 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
   const [loading, setLoading] = useState(false)
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null)
   const [hasMore, setHasMore] = useState(true)
+  const [imageCache, setImageCache] = useState<Record<string, string>>({})
   const offsetRef = useRef(0)
   const loaderRef = useRef<HTMLDivElement>(null)
   const loadingRef = useRef(false)
@@ -58,7 +59,6 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
     }
   }
 
-  // Trigger fresh load when filters change
   useEffect(() => {
     const newKey = `${language}-${category}`
     filterKeyRef.current = newKey
@@ -67,7 +67,6 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, category])
 
-  // Infinite scroll observer
   useEffect(() => {
     const el = loaderRef.current
     if (!el) return
@@ -85,6 +84,22 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
     return () => observer.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, language, category])
+
+  const handleImageFetched = (articleId: string, imageUrl: string) => {
+    setImageCache(prev => ({ ...prev, [articleId]: imageUrl }))
+  }
+
+  // Background-fetch og:image for articles that have no RSS image
+  useEffect(() => {
+    const missing = articles.filter(a => !a.imageUrl && !imageCache[a.id]).slice(0, 5)
+    missing.forEach(a => {
+      fetch(`/api/article?url=${encodeURIComponent(a.url)}`)
+        .then(r => r.json())
+        .then(data => { if (data.image) handleImageFetched(a.id, data.image) })
+        .catch(() => {})
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [articles])
 
   const isInitialLoading = loading && articles.length === 0
 
@@ -125,7 +140,9 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
         {articles.map((article, index) => (
           <NewsCard
             key={article.id}
-            article={article}
+            article={imageCache[article.id]
+              ? { ...article, imageUrl: imageCache[article.id] }
+              : article}
             onClick={setSelectedArticle}
             priority={index === 0}
             uiLanguage={language}
@@ -153,6 +170,8 @@ export default function NewsFeed({ language, category }: NewsFeedProps) {
       <ArticleModal
         article={selectedArticle}
         onClose={() => setSelectedArticle(null)}
+        onImageFetched={handleImageFetched}
+        language={language === 'all' ? 'en' : language}
       />
     </>
   )

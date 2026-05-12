@@ -22,13 +22,19 @@ const parser = new Parser({
   },
 })
 
+const LOGO_DOMAINS = [
+  'googleusercontent.com', // Google News publisher logos
+  'gstatic.com',           // Google static assets
+  'google.com/s2/favicons', // Google favicons
+]
+
 function isValidImageUrl(url: string): boolean {
   try {
     const u = new URL(url)
     if (!['http:', 'https:'].includes(u.protocol)) return false
-    // Skip tiny tracking pixels and data URIs
     if (url.startsWith('data:')) return false
     if (url.includes('pixel') && url.includes('1x1')) return false
+    if (LOGO_DOMAINS.some(d => u.hostname.endsWith(d))) return false
     return true
   } catch {
     return false

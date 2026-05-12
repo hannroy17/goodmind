@@ -5,7 +5,7 @@ import { CATEGORIES } from '@/lib/categories'
 import { formatDistanceToNow } from 'date-fns'
 import { fr, de, enUS, type Locale } from 'date-fns/locale'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface NewsCardProps {
   article: NewsArticle
@@ -152,10 +152,63 @@ const FALLBACK_POOLS: Record<string, string[]> = {
   ],
 }
 
-/** Pick a fallback from the pool deterministically using the article ID */
-function pickFallback(category: string, articleId: string): string {
+const KEYWORD_IMAGES: Record<string, string> = {
+  dauphin: 'https://images.unsplash.com/photo-1607153333879-c174d265f1d2?w=700&q=80',
+  baleine: 'https://images.unsplash.com/photo-1568430462989-44163eb1752f?w=700&q=80',
+  requin: 'https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=700&q=80',
+  océan: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=700&q=80',
+  ocean: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=700&q=80',
+  mer: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=700&q=80',
+  forêt: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=700&q=80',
+  foret: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=700&q=80',
+  forest: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=700&q=80',
+  espace: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=700&q=80',
+  space: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=700&q=80',
+  planète: 'https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=700&q=80',
+  planet: 'https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=700&q=80',
+  lune: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=700&q=80',
+  moon: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=700&q=80',
+  soleil: 'https://images.unsplash.com/photo-1530908295418-a12e326966ba?w=700&q=80',
+  sun: 'https://images.unsplash.com/photo-1530908295418-a12e326966ba?w=700&q=80',
+  robot: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&q=80',
+  ia: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=700&q=80',
+  ai: 'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=700&q=80',
+  cerveau: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=700&q=80',
+  brain: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=700&q=80',
+  cancer: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=700&q=80',
+  vaccin: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=700&q=80',
+  vaccine: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=700&q=80',
+  solaire: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=700&q=80',
+  solar: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?w=700&q=80',
+  arbre: 'https://images.unsplash.com/photo-1542601906897-c4c8d6fe8820?w=700&q=80',
+  tree: 'https://images.unsplash.com/photo-1542601906897-c4c8d6fe8820?w=700&q=80',
+  oiseau: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=700&q=80',
+  bird: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?w=700&q=80',
+  chien: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=700&q=80',
+  dog: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=700&q=80',
+  chat: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
+  cat: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=700&q=80',
+  enfant: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=700&q=80',
+  child: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=700&q=80',
+  sport: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=700&q=80',
+  running: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=700&q=80',
+  musique: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=700&q=80',
+  music: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=700&q=80',
+  art: 'https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=700&q=80',
+  eau: 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=700&q=80',
+  water: 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=700&q=80',
+  montagne: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=700&q=80',
+  mountain: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=700&q=80',
+}
+
+/** Try to match a keyword from the title to a relevant image, then fall back to category pool */
+function pickFallback(category: string, articleId: string, title: string): string {
+  const words = title.toLowerCase().replace(/['']/g, "'").split(/\s+/)
+  for (const word of words) {
+    const clean = word.replace(/[^a-zàâæçéèêëîïôœùûü]/g, '')
+    if (KEYWORD_IMAGES[clean]) return KEYWORD_IMAGES[clean]
+  }
   const pool = FALLBACK_POOLS[category] || FALLBACK_POOLS.all
-  // Turn the first 4 hex chars of the ID into a number → stable index
   const idx = parseInt(articleId.slice(0, 4), 16) % pool.length
   return pool[idx]
 }
@@ -163,8 +216,13 @@ function pickFallback(category: string, articleId: string): string {
 export default function NewsCard({ article, onClick, uiLanguage, priority = false }: NewsCardProps) {
   const cat = CATEGORIES.find(c => c.value === article.category)
   const dateLocale = DATE_LOCALES[uiLanguage] || enUS
-  const fallback = pickFallback(article.category, article.id)
+  const fallback = pickFallback(article.category, article.id, article.title)
   const [imgSrc, setImgSrc] = useState(article.imageUrl || fallback)
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (article.imageUrl) setImgSrc(article.imageUrl)
+  }, [article.imageUrl])
 
   let timeAgo = ''
   try {
@@ -189,6 +247,10 @@ export default function NewsCard({ article, onClick, uiLanguage, priority = fals
           fill
           className="object-cover"
           onError={() => setImgSrc(fallback)}
+          onLoad={e => {
+            const img = e.currentTarget
+            if (img.naturalWidth < 50 || img.naturalHeight < 50) setImgSrc(fallback)
+          }}
           unoptimized
           priority={priority}
         />

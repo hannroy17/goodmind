@@ -21,7 +21,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="sticky top-16 z-30 bg-orange-50/90 backdrop-blur-sm border-b border-orange-100">
+        <div className="sticky top-[61px] z-30 bg-orange-50/90 backdrop-blur-sm border-b border-orange-100">
           <CategoryFilter
             category={category}
             language={language}
